@@ -1,0 +1,94 @@
+{
+  "size": 0,
+  "aggs": {
+    "nexted_by_geo": {
+      "nested": {
+        "path": "geo"
+      },
+      "aggs": {
+        "group_by_geo_country": {
+          "terms": {
+            "field": "geo.name.keyword",
+            "size": "300",
+            "min_doc_count": 1,
+            "order": {
+              "_key": "asc"
+            }
+          },
+          "aggs": {
+            "reverse": {
+              "reverse_nested": {},
+              "aggs": {
+                "nested_by_tag": {
+                  "nested": {
+                    "path": "tag"
+                  },
+                  "aggs": {
+                    "group_by_tag": {
+                      "terms": {
+                        "field": "tag.name",
+                        "size": "300",
+                        "min_doc_count": 1,
+                        "order": {
+                          "_key": "asc"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "nested": {
+            "path": "category",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "terms": {
+                      "category.id": ["3"]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "range": {
+            "date_jst": {
+              "gte": "",
+              "lt": ""
+            }
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "nested": {
+            "path": "category",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "terms": {
+                      "category.id": ["62", "94", "170", "2", "179"]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

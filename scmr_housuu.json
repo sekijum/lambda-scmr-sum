@@ -1,0 +1,84 @@
+{
+  "size": 0,
+  "aggs": {
+    "group_by_jian_no": {
+      "terms": {
+        "field": "jian_no",
+        "min_doc_count": 1,
+        "size": 99
+      },
+      "aggs": {
+        "max_housuu": {
+          "max": {
+            "field": "housuu"
+          }
+        },
+        "housuu_list": {
+          "terms": {
+            "field": "housuu",
+            "size": 99,
+            "order": {
+              "_key": "desc"
+            }
+          },
+          "aggs": {
+            "title": {
+              "terms": {
+                "field": "title.keyword",
+                "size": 99
+              }
+            },
+            "date": {
+              "terms": {
+                "field": "date_jst",
+                "size": 10
+              }
+            }
+          }
+        },
+        "jian_no_bucket_sort": {
+          "bucket_sort": {
+            "sort": [
+              {
+                "max_housuu": {
+                  "order": "desc"
+                }
+              }
+            ],
+            "size": 99
+          }
+        }
+      }
+    }
+  },
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "nested": {
+            "path": "category",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "terms": {
+                      "category.id": []
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "range": {
+            "date_jst": {
+              "gte": "",
+              "lt": ""
+            }
+          }
+        }
+      ]
+    }
+  }
+}
